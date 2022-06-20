@@ -5,7 +5,8 @@ public class Test {
 
     public static void main(String[] args) throws InvalidProtocolBufferException {
 
-        DisturbedMonitor monitor = new DisturbedMonitor();
+        DisturbedMonitor monitor = new DisturbedMonitor(1);
+        monitor.run();
         TestState a = new TestState();
         monitor.testProtoSerial();
 /*

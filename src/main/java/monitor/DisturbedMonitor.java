@@ -1,16 +1,17 @@
 package monitor;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import monitor.CallbackInterface;
-import org.zeromq.SocketType;
-import org.zeromq.ZMQ;
-import org.zeromq.ZContext;
 
 public class DisturbedMonitor {
 
+    private final Algorithm algorithm;
 
-    public DisturbedMonitor() {
+    public DisturbedMonitor(int tokens) {
+        algorithm = new Algorithm(tokens);
+    }
 
+    public void run(){
+        algorithm.init();
     }
 
     public byte[] testProtoSerial() throws InvalidProtocolBufferException {

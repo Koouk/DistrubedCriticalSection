@@ -1,5 +1,7 @@
 package monitor;
 
+import monitor.broker.Broker;
+
 import java.util.ArrayList;
 import java.util.List;
 
