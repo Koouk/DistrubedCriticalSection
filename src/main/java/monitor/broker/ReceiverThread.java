@@ -13,6 +13,7 @@ public class ReceiverThread  implements  Runnable{
     @Override
     public void run() {
         System.out.println("Jej, odbieram");
-        // tutaj bedzie obsluga przychodzacych
+        while(true) {}
+        //call hadn
     }
 }
