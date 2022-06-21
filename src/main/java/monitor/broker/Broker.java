@@ -36,7 +36,7 @@ public class Broker {
     }
 
     public void sendToken(Request newReq, Integer producingId) {
-        //send token + state as json
+        //send token + state as json, tocken lock is on
     }
 
 

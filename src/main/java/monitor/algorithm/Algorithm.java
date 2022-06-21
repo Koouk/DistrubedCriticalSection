@@ -91,39 +91,47 @@ public class Algorithm {
             var req = rnI.get(rnI.size() - 1);
 
             synchronized (tokenLock) {
-                token.getLn()[processIndex] = req.number();
-                var ln = token.getLn();
-                List<Request> newRequests = new ArrayList<>();
-                for(int i = 0; i < Config.processes; i++ ) {
-                    if(i == processIndex) {
-                        continue;
-                    }
-
-                    var rnK = rn.get(i);
-                    var lnI = ln[i];
-                    if(ln[i] < rnK.get(rnK.size() -1 ).number()) {
-                        newRequests.addAll(rnK.stream().filter(r -> r.number() >= lnI).toList()); //dodajemy wszystkie nowe requesty
-                    }
-                    ln[i] = rnK.get(rnK.size() - 1).number(); //aktualizujemy ln[i]
-                }
-
-                newRequests = newRequests.stream().sorted(Comparator.comparing(Request::number)).toList();  //dodajemy do Q
-                token.getQueue().addAll(newRequests);
-
-                var foundRequest = token.getQueue().stream().filter(p -> !(p.failed() && p.requiredId() != producingId)).findFirst(); // albo przyjmie wsyztsko albo potrzebuje prodID
-                if(foundRequest.isPresent()) {
-
-                    var newReq = foundRequest.get();
-                    if(newReq.processId() == processIndex) {
-                        throw new RuntimeException("Same process after critical section ;( "); //todo ?
-                    }
-
-                    broker.sendToken(newReq, producingId);
-                    token = null;
-                } else {
-                    token.setUsed(false);
-                }
+                updateToken(req);
+                sendToken(producingId);
             }
+        }
+    }
+
+
+    private void updateToken(Request req) {
+        token.getLn()[processIndex] = req.number();
+        var ln = token.getLn();
+        List<Request> newRequests = new ArrayList<>();
+        for(int i = 0; i < Config.processes; i++ ) {
+            if(i == processIndex) {
+                continue;
+            }
+
+            var rnK = rn.get(i);
+            var lnI = ln[i];
+            if(ln[i] < rnK.get(rnK.size() -1 ).number()) {
+                newRequests.addAll(rnK.stream().filter(r -> r.number() >= lnI).toList()); //dodajemy wszystkie nowe requesty
+            }
+            ln[i] = rnK.get(rnK.size() - 1).number(); //aktualizujemy ln[i]
+        }
+
+        newRequests = newRequests.stream().sorted(Comparator.comparing(Request::number)).toList();  //dodajemy do Q
+        token.getQueue().addAll(newRequests);
+    }
+
+    private void sendToken(Integer producingId) {
+        var foundRequest = token.getQueue().stream().filter(p -> !(p.failed() && p.requiredId() != producingId)).findFirst(); // albo przyjmie wsyztsko albo potrzebuje prodID
+        if(foundRequest.isPresent()) {
+
+            var newReq = foundRequest.get();
+            if(newReq.processId() == processIndex) {
+                throw new RuntimeException("Same process after critical section ;( "); //todo ?
+            }
+            token.getQueue().remove(newReq);
+            broker.sendToken(newReq, producingId);
+            token = null;
+        } else {
+            token.setUsed(false);
         }
     }
 
@@ -133,12 +141,20 @@ public class Algorithm {
 
             if( Collections.max(reqList.stream().map(Request::number).toList()) < request.number()) {
                 reqList.add(request);
+            } else {
+                return;
+            }
+        }
+        synchronized (tokenLock) {
+            if(!token.isUsed()) {
+                updateToken(request);
+                sendToken(request.requiredId());
             }
         }
     }
 
     public void handleTokenMessage(Token token, StateInterface state, int requiredId) {
-
+        // token
         // receive and save token (tocken lock), robimy update stanu,  budzimy z request requiredId, wszytsko to  w locku
     }
 
