@@ -36,6 +36,12 @@ public class TestState implements StateInterface {
     }
 
     @Override
+    public void updateState(StateInterface state) {
+        TestState xd = (TestState) state;
+
+    }
+
+    @Override
     public String toString() {
         return "TestState{" +
                 "testList=" + testList +
