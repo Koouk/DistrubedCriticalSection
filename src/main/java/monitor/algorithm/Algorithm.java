@@ -147,7 +147,6 @@ public class Algorithm {
         }
         synchronized (tokenLock) {
             if(!token.isUsed()) {
-                updateToken(request);
                 sendToken(request.requiredId());
             }
         }
