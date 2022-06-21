@@ -1,6 +1,6 @@
 package monitor.broker;
 
-import monitor.Algorithm;
+import monitor.algorithm.Algorithm;
 
 import java.util.concurrent.Executors;
 

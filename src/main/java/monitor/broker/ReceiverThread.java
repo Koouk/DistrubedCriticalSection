@@ -1,6 +1,6 @@
 package monitor.broker;
 
-import monitor.Algorithm;
+import monitor.algorithm.Algorithm;
 
 public class ReceiverThread  implements  Runnable{
 

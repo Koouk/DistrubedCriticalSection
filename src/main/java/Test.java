@@ -8,7 +8,7 @@ public class Test {
         DisturbedMonitor monitor = new DisturbedMonitor(1);
         monitor.run();
         TestState a = new TestState();
-        monitor.testProtoSerial();
+
 /*
         var ref = new Object() {
             int w = 0;
@@ -32,3 +32,28 @@ public class Test {
     }
 
 }
+
+
+/*
+    public byte[] testProtoSerial() throws InvalidProtocolBufferException {
+        QueueMessageProto.QueueMessage message = QueueMessageProto.QueueMessage.newBuilder()
+                .setId(1)
+                .setState("xddd")
+                .build();
+
+        var test = message.toByteArray();
+        return test;
+    }
+
+
+    public void testProtoDeserial(byte[] bytes) throws InvalidProtocolBufferException {
+        QueueMessageProto.QueueMessage deserialized
+                = QueueMessageProto.QueueMessage.newBuilder()
+                .mergeFrom(bytes).build();
+
+        System.out.println(deserialized.getId());
+        System.out.println(deserialized.getState());
+    }
+
+
+ */
