@@ -10,7 +10,7 @@ public class Token {
 
     private final Integer[] ln;
 
-    private final List<Request> queue;
+    private List<Request> queue;
 
     private boolean isUsed = false;
 
@@ -39,5 +39,14 @@ public class Token {
     public Token(List<Integer> ln, List<Request> queue) {
         this.ln = ln.toArray(new Integer[0]);
         this.queue = queue;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "ln=" + Arrays.toString(ln) +
+                ", queue=" + queue +
+                ", isUsed=" + isUsed +
+                '}';
     }
 }

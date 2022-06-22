@@ -13,31 +13,31 @@ public class TestSub {
         ZMQ.Context context = ZMQ.context(1);
         ZMQ.Socket subscriber = context.socket(SocketType.SUB);
         subscriber.subscribe("ALL".getBytes(ZMQ.CHARSET));
-        subscriber.subscribe("B".getBytes(ZMQ.CHARSET));
-        subscriber.connect("tcp://localhost:9001");
+        subscriber.subscribe("2".getBytes(ZMQ.CHARSET));
+        subscriber.connect("tcp://localhost:9000");
 
         while (!Thread.currentThread().isInterrupted()) {
 
             String topic = subscriber.recvStr();
             // Read message contents
-
+         //   System.out.println("GOT IT");
             var contents = subscriber.recv();
 
             if(topic.equals("ALL")) {
                 var message = TokenProto.RequestMessage.parseFrom(contents);
                 var xd = (new Request(message.getProcessId(), message.getNumber(), message.getRequiredId(), message.getFailed()));
-                System.out.println(xd);
-                System.out.println(topic);
+            //    System.out.println(xd);
+          //      System.out.println(topic);
             } else {
                 var message = TokenProto.TokenMessage.parseFrom(contents);
                 var tokenProto = message.getToken();
                 var queue =  tokenProto.getQueueList().stream().map(p -> new Request(p.getProcessId(), p.getNumber(), p.getRequiredId(), p.getFailed())).toList();
                 var token = new Token(tokenProto.getLnList(), queue);
 
-                System.out.println(token);
-                System.out.println(message.getState());
-                System.out.println(message.getProducingId());
-                System.out.println(topic);
+             //   System.out.println(token);
+             //   System.out.println(message.getState());
+             //   System.out.println(message.getProducingId());
+             //   System.out.println(topic);
             }
 
             break;

@@ -6,5 +6,5 @@ public interface StateInterface {
 
     void deserialize(String body);
 
-    void updateState(StateInterface state);
+    void updateState(String body);
 }

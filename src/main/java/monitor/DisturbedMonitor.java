@@ -2,6 +2,7 @@ package monitor;
 
 import monitor.algorithm.Algorithm;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
@@ -47,11 +48,20 @@ public class DisturbedMonitor {
         boolean executed = false;
         try {
             while(!algorithm.canEnterCriticalSection()) {
-                condition.await();
+                if(algorithm.getToken() != null)
+                    algorithm.getToken().setUsed(false);
+                condition.await(1, TimeUnit.SECONDS);
             }
+
             if(additionalCondition.check()) {
                 functionToExecute.execute();
                 executed = true;
+            } else {
+                if(algorithm.getToken() != null)
+                    algorithm.getToken().setUsed(false);
+                condition.await(2, TimeUnit.SECONDS);
+                if(algorithm.getToken() != null)
+                    algorithm.getToken().setUsed(true);
             }
 
         } catch (InterruptedException e) {

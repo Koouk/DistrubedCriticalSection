@@ -16,7 +16,7 @@ public class Algorithm {
 
     private Broker broker;
 
-    private final int uniqueTokens;
+    private final int uniqueConds;
 
     private final Lock lock = new ReentrantLock();
     private final List<Condition> conditions = new ArrayList<>();
@@ -34,7 +34,7 @@ public class Algorithm {
 
 
     public Algorithm(int uniqueVariables, int processIndex, StateInterface state) {
-        this.uniqueTokens = uniqueVariables;
+        this.uniqueConds = uniqueVariables;
         this.state = state;
         this.processIndex = processIndex;
         rn = new ArrayList<>();
@@ -45,7 +45,7 @@ public class Algorithm {
     }
 
     public void init() {
-        for(int i = 0; i < uniqueTokens; i++) {
+        for(int i = 0; i < uniqueConds; i++) {
             conditions.add(lock.newCondition());
         }
 
@@ -59,42 +59,41 @@ public class Algorithm {
 
 
     public void sendEnterSectionRequest(int requiredId, boolean isFailed) {
-        synchronized (tokenLock) {
-            if(token != null) {
-                token.setUsed(true);
-                return;
-            }
+        lock.lock();
+        if(token != null) {
+            token.setUsed(true);
+            lock.unlock();
+            return;
         }
+
         Request req = null;
-        synchronized (rn) {
-            currentRequestNumber += 1;
-            var rnI = rn.get(processIndex);
-            rnI.add(new Request(processIndex, currentRequestNumber, requiredId, isFailed));
-            req = rnI.get(rnI.size() - 1);
-        }
+        currentRequestNumber += 1;
+        var rnI = rn.get(processIndex);
+        System.out.println("Sending enter request with number " + currentRequestNumber);
+        rnI.add(new Request(processIndex, currentRequestNumber, requiredId, isFailed));
+        req = rnI.get(rnI.size() - 1);
+
         broker.sendRequestMessage(req);
+        lock.unlock();
     }
 
     public boolean canEnterCriticalSection() {
-        synchronized (tokenLock) {
-            if(token != null) {
-                token.setUsed(true);
-                return true;
-            }
-            return false;
+        if(token != null) {
+            token.setUsed(true);
+            return true;
         }
+        return false;
+
     }
 
     public void leaveCriticalSection(Integer producingId) {
-        synchronized (rn) {
-            var rnI = rn.get(processIndex);
-            var req = rnI.get(rnI.size() - 1);
-
-            synchronized (tokenLock) {
-                updateToken(req);
-                sendToken(producingId);
-            }
+        var rnI = rn.get(processIndex);
+        var req = rnI.get(rnI.size() - 1);
+        if(token == null ) {
+            return;
         }
+        updateToken(req);
+        sendToken(producingId);
     }
 
 
@@ -125,36 +124,91 @@ public class Algorithm {
 
             var newReq = foundRequest.get();
             if(newReq.processId() == processIndex) {
-                throw new RuntimeException("Same process after critical section ;( "); //todo ?
+                token.getQueue().remove(newReq);
+                token.setUsed(false);
+                return;
             }
+            System.out.println("NUMBER " + newReq.number());
             token.getQueue().remove(newReq);
-            broker.sendToken(newReq, producingId);
+            int id = newReq.failed() ? producingId : newReq.requiredId();
+            System.out.println("Sending token to " + newReq);
+            broker.sendToken(newReq.processId(), id);
             token = null;
         } else {
             token.setUsed(false);
         }
     }
+    private void updateTokenNotUsed() {
+        var ln = token.getLn();
+        List<Request> newRequests = new ArrayList<>();
+        for(int i = 0; i < Config.processes; i++ ) {
+            if(i == processIndex) {
+                continue;
+            }
+
+            var rnK = rn.get(i);
+            var lnI = ln[i];
+            if(ln[i] < rnK.get(rnK.size() -1 ).number()) {
+                newRequests.addAll(rnK.stream().filter(r -> r.number() >= lnI).toList()); //dodajemy wszystkie nowe requesty
+            }
+            ln[i] = rnK.get(rnK.size() - 1).number(); //aktualizujemy ln[i]
+        }
+
+        newRequests = newRequests.stream().sorted(Comparator.comparing(Request::number)).toList();  //dodajemy do Q
+        token.getQueue().addAll(newRequests);
+    }
+
+    private void sendNotUsedToken(Request request) {
+        updateTokenNotUsed();
+        var foundRequest = token.getQueue().stream().findFirst();
+        if(foundRequest.isPresent()) {
+            if(foundRequest.get().number() < request.number()) {
+                request = foundRequest.get();
+            }
+        }
+
+        if(request.processId() == processIndex) {
+            token.getQueue().remove(request);
+            token.setUsed(false);
+            return;
+        }
+
+        token.getQueue().remove(request);
+
+        System.out.println("Sending token to " + request);
+
+        broker.sendToken(request.processId(), request.requiredId());
+        token = null;
+    }
 
     public void handleRequestMessage(Request request) {
-        synchronized (rn) {
+        lock.lock();
+        System.out.println("received request mess " + request.number());
             var reqList = rn.get(request.processId());
 
             if( Collections.max(reqList.stream().map(Request::number).toList()) < request.number()) {
                 reqList.add(request);
             } else {
+                lock.unlock();
                 return;
             }
-        }
-        synchronized (tokenLock) {
-            if(!token.isUsed()) {
-                sendToken(request.requiredId());
+
+
+            if(token != null && !token.isUsed()) {
+                sendNotUsedToken(request);
             }
-        }
+        lock.unlock();
     }
 
     public void handleTokenMessage(Token token, String state, int requiredId) {
-        // token
-        // receive and save token (tocken lock), robimy update stanu,  budzimy z request requiredId, wszytsko to  w locku
+
+        lock.lock();
+        System.out.println("received token message ");
+        this.token = token;
+        this.state.updateState(state);
+        System.out.println("SIGNALING " + requiredId);
+        conditions.get(requiredId).signal();
+        lock.unlock();
     }
 
     public Lock getLock() {
@@ -173,8 +227,8 @@ public class Algorithm {
         this.broker = broker;
     }
 
-    public int getUniqueTokens() {
-        return uniqueTokens;
+    public int getUniqueConds() {
+        return uniqueConds;
     }
 
     public List<Condition> getConditions() {
