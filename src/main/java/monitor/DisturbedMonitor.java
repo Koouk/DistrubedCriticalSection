@@ -29,6 +29,7 @@ public class DisturbedMonitor {
         Condition condition = algorithm.getRequiredCondition(requiredId);
         boolean executed = false;
         boolean firstTry = true;
+        algorithm.testSend();
         while(!executed) {
            lock.lock();
             if(firstTry) {

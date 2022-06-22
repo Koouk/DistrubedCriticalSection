@@ -6,7 +6,7 @@ public class Test {
     public static void main(String[] args) throws InvalidProtocolBufferException {
 
         var state = new TestState();
-        DisturbedMonitor monitor = new DisturbedMonitor(1, state, 1);
+        DisturbedMonitor monitor = new DisturbedMonitor(1, state, 0);
         monitor.run();
         TestState a = new TestState();
         monitor.execute(0,0,() -> {return true;}, () -> {a.incrementA();});

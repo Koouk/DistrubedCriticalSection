@@ -36,8 +36,10 @@ public class TestState implements StateInterface {
     }
 
     @Override
-    public void updateState(StateInterface state) {
-        TestState xd = (TestState) state;
+    public void updateState(String state) {
+        TestState newState = gson.fromJson(state, TestState.class);
+        this.a = newState.a;
+        this.testList = newState.testList;
 
     }
 

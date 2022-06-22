@@ -40,4 +40,13 @@ public class Token {
         this.ln = ln.toArray(new Integer[0]);
         this.queue = queue;
     }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "ln=" + Arrays.toString(ln) +
+                ", queue=" + queue +
+                ", isUsed=" + isUsed +
+                '}';
+    }
 }

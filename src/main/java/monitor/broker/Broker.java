@@ -48,7 +48,7 @@ public class Broker {
             publisher.send(message.toByteArray());
     }
 
-    public void sendToken(Request newReq, Integer producingId) {
+    public void sendToken(int processId, Integer producingId) {
         var queueProto = algorithm.getToken().getQueue().stream().map(p ->
                 TokenProto.RequestMessage.newBuilder()
                 .setFailed(p.failed())
@@ -71,8 +71,8 @@ public class Broker {
 
         System.out.println(tokenMsg);
 
-
-        publisher.sendMore(String.valueOf(algorithm.getProcessIndex()));
+        System.out.println("id" + String.valueOf(processId));
+        publisher.sendMore(String.valueOf(processId));
         publisher.send(tokenMsg.toByteArray());
     }
 

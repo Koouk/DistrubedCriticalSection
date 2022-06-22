@@ -13,14 +13,14 @@ public class TestSub {
         ZMQ.Context context = ZMQ.context(1);
         ZMQ.Socket subscriber = context.socket(SocketType.SUB);
         subscriber.subscribe("ALL".getBytes(ZMQ.CHARSET));
-        subscriber.subscribe("B".getBytes(ZMQ.CHARSET));
-        subscriber.connect("tcp://localhost:9001");
+        subscriber.subscribe("2".getBytes(ZMQ.CHARSET));
+        subscriber.connect("tcp://localhost:9000");
 
         while (!Thread.currentThread().isInterrupted()) {
 
             String topic = subscriber.recvStr();
             // Read message contents
-
+            System.out.println("GOT IT");
             var contents = subscriber.recv();
 
             if(topic.equals("ALL")) {

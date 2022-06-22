@@ -128,13 +128,16 @@ public class Algorithm {
                 throw new RuntimeException("Same process after critical section ;( "); //todo ?
             }
             token.getQueue().remove(newReq);
-            broker.sendToken(newReq, producingId);
+            broker.sendToken(newReq.processId(), producingId);
             token = null;
         } else {
             token.setUsed(false);
         }
     }
 
+    public void testSend() {
+        broker.sendToken(2, 4);
+    }
     public void handleRequestMessage(Request request) {
         synchronized (rn) {
             var reqList = rn.get(request.processId());
@@ -153,8 +156,12 @@ public class Algorithm {
     }
 
     public void handleTokenMessage(Token token, String state, int requiredId) {
-        // token
-        // receive and save token (tocken lock), robimy update stanu,  budzimy z request requiredId, wszytsko to  w locku
+
+        lock.lock();
+        this.token = token;
+        this.state.updateState(state);
+        lock.unlock();
+        conditions.get(requiredId).signal();
     }
 
     public Lock getLock() {
