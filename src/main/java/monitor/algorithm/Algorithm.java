@@ -72,7 +72,7 @@ public class Algorithm {
             rnI.add(new Request(processIndex, currentRequestNumber, requiredId, isFailed));
             req = rnI.get(rnI.size() - 1);
         }
-        broker.sendRequestMessage(req, processIndex);
+        broker.sendRequestMessage(req);
     }
 
     public boolean canEnterCriticalSection() {
@@ -152,7 +152,7 @@ public class Algorithm {
         }
     }
 
-    public void handleTokenMessage(Token token, StateInterface state, int requiredId) {
+    public void handleTokenMessage(Token token, String state, int requiredId) {
         // token
         // receive and save token (tocken lock), robimy update stanu,  budzimy z request requiredId, wszytsko to  w locku
     }
@@ -165,5 +165,51 @@ public class Algorithm {
         return conditions.get(id);
     }
 
+    public Broker getBroker() {
+        return broker;
+    }
 
+    public void setBroker(Broker broker) {
+        this.broker = broker;
+    }
+
+    public int getUniqueTokens() {
+        return uniqueTokens;
+    }
+
+    public List<Condition> getConditions() {
+        return conditions;
+    }
+
+    public StateInterface getState() {
+        return state;
+    }
+
+    public int getProcessIndex() {
+        return processIndex;
+    }
+
+    public Token getToken() {
+        return token;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
+    }
+
+    public Object getTokenLock() {
+        return tokenLock;
+    }
+
+    public List<List<Request>> getRn() {
+        return rn;
+    }
+
+    public int getCurrentRequestNumber() {
+        return currentRequestNumber;
+    }
+
+    public void setCurrentRequestNumber(int currentRequestNumber) {
+        this.currentRequestNumber = currentRequestNumber;
+    }
 }

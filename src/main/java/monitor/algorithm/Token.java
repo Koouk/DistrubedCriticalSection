@@ -35,4 +35,9 @@ public class Token {
     public void setUsed(boolean used) {
         isUsed = used;
     }
+
+    public Token(List<Integer> ln, List<Request> queue) {
+        this.ln = ln.toArray(new Integer[0]);
+        this.queue = queue;
+    }
 }

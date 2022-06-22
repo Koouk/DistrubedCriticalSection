@@ -1,8 +1,12 @@
 package monitor.broker;
 
+import monitor.Config;
 import monitor.algorithm.Algorithm;
 import monitor.algorithm.Request;
+import org.zeromq.SocketType;
+import org.zeromq.ZMQ;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Executors;
 
@@ -11,6 +15,10 @@ import static java.lang.Thread.sleep;
 public class Broker {
 
     private final Algorithm algorithm;
+
+    private ZMQ.Context context;
+
+    private ZMQ.Socket publisher;
 
     public Broker(Algorithm algorithm) {
         this.algorithm = algorithm;
@@ -22,21 +30,50 @@ public class Broker {
         executorService.execute(new ReceiverThread(algorithm));
         executorService.shutdown();
 
-        try {
-            sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Jej, wysylam");
+        context = ZMQ.context(1);
+        publisher = context.socket(SocketType.PUB);
+        publisher.bind("tcp://%s".formatted(Config.address.get(algorithm.getProcessIndex())));
     }
 
-    public void sendRequestMessage(Request request, int processIndex) {
-        // wysylamy request do wszytskich, requst zamienic na protobuf
+    public void sendRequestMessage(Request request) {
+        System.out.println("Sending " + request);
+            TokenProto.RequestMessage message = TokenProto.RequestMessage.newBuilder()
+                    .setNumber(request.number())
+                    .setFailed(request.failed())
+                    .setProcessId(request.processId())
+                    .setRequiredId(request.requiredId())
+                    .build();
 
+            publisher.sendMore("ALL");
+            publisher.send(message.toByteArray());
     }
 
     public void sendToken(Request newReq, Integer producingId) {
-        //send token + state as json, tocken lock is on
+        var queueProto = algorithm.getToken().getQueue().stream().map(p ->
+                TokenProto.RequestMessage.newBuilder()
+                .setFailed(p.failed())
+                .setNumber(p.number())
+                .setProcessId(p.processId())
+                .setRequiredId(p.requiredId())
+                .build()
+        ).toList();
+
+        var tokenProto = TokenProto.Token.newBuilder()
+                .addAllLn(Arrays.asList(algorithm.getToken().getLn()))
+                .addAllQueue(queueProto)
+                .build();
+
+        var tokenMsg = TokenProto.TokenMessage.newBuilder()
+                .setToken(tokenProto)
+                .setState(algorithm.getState().serialize())
+                .setProducingId(producingId)
+                .build();
+
+        System.out.println(tokenMsg);
+
+
+        publisher.sendMore(String.valueOf(algorithm.getProcessIndex()));
+        publisher.send(tokenMsg.toByteArray());
     }
 
 
