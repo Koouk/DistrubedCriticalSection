@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_package = "monitor.broker";
+option java_outer_classname = "TokenProto";
+
+
+message TokenMessage {
+  Token token = 1;
+  string state = 2;
+  int32 producingId = 3;
+
+}
+
+
+message Token {
+  repeated RequestMessage queue = 1;
+  repeated int32 ln = 2;
+}
+
+
+message RequestMessage {
+  int32 processId = 1;
+  int32 number = 2;
+  int32 requiredId = 3;
+  bool failed = 4;
+}

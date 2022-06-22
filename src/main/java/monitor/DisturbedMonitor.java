@@ -27,7 +27,6 @@ public class DisturbedMonitor {
     public void execute(int requiredId, int producingId, PredicateInterface additionalCondition,CallbackInterface functionToExecute) {
         Lock lock = algorithm.getLock();
         Condition condition = algorithm.getRequiredCondition(requiredId);
-
         boolean executed = false;
         boolean firstTry = true;
         while(!executed) {
