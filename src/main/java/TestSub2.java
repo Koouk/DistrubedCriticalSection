@@ -16,12 +16,12 @@ public class TestSub2 {
             String address = subscriber.recvStr();
             // Read message contents
             String contents = subscriber.recvStr();
-            System.out.println(address + " : " + contents);
+          //  System.out.println(address + " : " + contents);
             // Read envelope with address
              address = subscriber.recvStr();
             // Read message contents
              contents = subscriber.recvStr();
-            System.out.println(address + " : " + contents);
+          //  System.out.println(address + " : " + contents);
             break;
         }
     }

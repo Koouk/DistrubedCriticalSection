@@ -8,7 +8,9 @@ import monitor.algorithm.Token;
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
 
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ReceiverThread  implements  Runnable{
 
@@ -53,7 +55,8 @@ public class ReceiverThread  implements  Runnable{
                 try {
                     var message = TokenProto.TokenMessage.parseFrom(contents);
                     var tokenProto = message.getToken();
-                    var queue =  tokenProto.getQueueList().stream().map(p -> new Request(p.getProcessId(), p.getNumber(), p.getRequiredId(), p.getFailed())).toList();
+                    var queue =  tokenProto.getQueueList().stream().map(p -> new Request(p.getProcessId(), p.getNumber(), p.getRequiredId(), p.getFailed())) .collect(Collectors
+                            .toCollection(ArrayList::new));
                     var token = new Token(tokenProto.getLnList(), queue);
                     algorithm.handleTokenMessage(token, message.getState(), message.getProducingId());
                 } catch (InvalidProtocolBufferException e) {

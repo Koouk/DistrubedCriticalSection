@@ -33,10 +33,15 @@ public class Broker {
         context = ZMQ.context(1);
         publisher = context.socket(SocketType.PUB);
         publisher.bind("tcp://%s".formatted(Config.address.get(algorithm.getProcessIndex())));
+        try {
+            sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendRequestMessage(Request request) {
-        System.out.println("Sending " + request);
+      //  System.out.println("Sending " + request);
             TokenProto.RequestMessage message = TokenProto.RequestMessage.newBuilder()
                     .setNumber(request.number())
                     .setFailed(request.failed())
@@ -44,6 +49,7 @@ public class Broker {
                     .setRequiredId(request.requiredId())
                     .build();
 
+         System.out.println("Sending req mess with number " + request.number());
             publisher.sendMore("ALL");
             publisher.send(message.toByteArray());
     }
@@ -69,9 +75,7 @@ public class Broker {
                 .setProducingId(producingId)
                 .build();
 
-        System.out.println(tokenMsg);
-
-        System.out.println("id" + String.valueOf(processId));
+        System.out.println("Sending token to " + processId);
         publisher.sendMore(String.valueOf(processId));
         publisher.send(tokenMsg.toByteArray());
     }

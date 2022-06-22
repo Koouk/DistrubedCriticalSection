@@ -10,7 +10,7 @@ public class Token {
 
     private final Integer[] ln;
 
-    private final List<Request> queue;
+    private List<Request> queue;
 
     private boolean isUsed = false;
 

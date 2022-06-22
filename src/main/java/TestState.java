@@ -1,53 +1,62 @@
 import com.google.gson.Gson;
 import monitor.StateInterface;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class TestState implements StateInterface {
-    private List<String> testList = new ArrayList<>();
+    private Queue<String> testQueue = new LinkedList<>();
 
-    private int a = 0;
+    private int capacity = 3;
+
 
     private transient Gson gson = new Gson();
 
-    public void incrementA() {
-        a++;
+    public void put(String a) {
+        testQueue.add(a);
     }
 
-    public int getA() {
-        return a;
+    public String getA() {
+        return testQueue.poll();
     }
 
+    public boolean checkIfFull() {
+        return testQueue.size() == capacity;
+    }
+
+    public boolean checkIfEmpty() {
+        return testQueue.size() > 0;
+    }
 
     @Override
     public String serialize() {
 
         String json = gson.toJson(this);
-        System.out.println(json);
+       // System.out.println(json);
         return json;
     }
 
     @Override
     public void deserialize(String body) {
         TestState state = gson.fromJson(body, TestState.class);
-        System.out.println(state);
+       // System.out.println(state);
 
     }
 
     @Override
     public void updateState(String state) {
         TestState newState = gson.fromJson(state, TestState.class);
-        this.a = newState.a;
-        this.testList = newState.testList;
+        this.testQueue = newState.testQueue;
+        this.capacity = newState.capacity;
 
     }
 
     @Override
     public String toString() {
         return "TestState{" +
-                "testList=" + testList +
-                ", a=" + a +
+                "testQueue=" + testQueue +
+                ", capacity=" + capacity +
+                ", gson=" + gson +
                 '}';
     }
 }
