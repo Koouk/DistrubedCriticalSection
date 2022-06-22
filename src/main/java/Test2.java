@@ -19,6 +19,7 @@ public class Test2 {
                         System.out.println("\n Got" + x + "\n");
                     });
         }
+        System.out.println("END");
     }
 
 

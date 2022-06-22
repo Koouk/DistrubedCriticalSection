@@ -75,7 +75,7 @@ public class Broker {
                 .setProducingId(producingId)
                 .build();
 
-        System.out.println("Sending token to " + processId);
+
         publisher.sendMore(String.valueOf(processId));
         publisher.send(tokenMsg.toByteArray());
     }
