@@ -2,7 +2,6 @@ package monitor;
 
 import monitor.algorithm.Algorithm;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
@@ -25,14 +24,14 @@ public class DisturbedMonitor {
     }
 
 
-    public void execute(int requiredId, int producingId, PredicateInterface additionalCondition,CallbackInterface functionToExecute) {
+    public void execute(int requiredId, int producingId, PredicateInterface additionalCondition, CallbackInterface functionToExecute) {
         Lock lock = algorithm.getLock();
         Condition condition = algorithm.getRequiredCondition(requiredId);
         boolean executed = false;
         boolean firstTry = true;
-        while(!executed) {
-           lock.lock();
-            if(firstTry) {
+        while (!executed) {
+            lock.lock();
+            if (firstTry) {
                 algorithm.sendEnterSectionRequest(requiredId, false); // wysylamy ze nie czekamy na konkretny sygnal
                 firstTry = false;
             } else {
@@ -47,21 +46,15 @@ public class DisturbedMonitor {
     private boolean tryToExecute(PredicateInterface additionalCondition, CallbackInterface functionToExecute, Condition condition) {
         boolean executed = false;
         try {
-            while(!algorithm.canEnterCriticalSection()) {
-                if(algorithm.getToken() != null)
+            while (!algorithm.canEnterCriticalSection()) {
+                if (algorithm.getToken() != null)
                     algorithm.getToken().setUsed(false);
-                condition.await(1, TimeUnit.SECONDS);
+                condition.await();
             }
 
-            if(additionalCondition.check()) {
+            if (additionalCondition.check()) {
                 functionToExecute.execute();
                 executed = true;
-            } else {
-                if(algorithm.getToken() != null)
-                    algorithm.getToken().setUsed(false);
-                condition.await(2, TimeUnit.SECONDS);
-                if(algorithm.getToken() != null)
-                    algorithm.getToken().setUsed(true);
             }
 
         } catch (InterruptedException e) {
