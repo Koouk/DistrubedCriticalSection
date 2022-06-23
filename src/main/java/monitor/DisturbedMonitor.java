@@ -50,18 +50,12 @@ public class DisturbedMonitor {
             while(!algorithm.canEnterCriticalSection()) {
                 if(algorithm.getToken() != null)
                     algorithm.getToken().setUsed(false);
-                condition.await(1, TimeUnit.SECONDS);
+                condition.await();
             }
 
             if(additionalCondition.check()) {
                 functionToExecute.execute();
                 executed = true;
-            } else {
-                if(algorithm.getToken() != null)
-                    algorithm.getToken().setUsed(false);
-                condition.await(2, TimeUnit.SECONDS);
-                if(algorithm.getToken() != null)
-                    algorithm.getToken().setUsed(true);
             }
 
         } catch (InterruptedException e) {

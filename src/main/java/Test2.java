@@ -6,7 +6,7 @@ import static java.lang.Thread.sleep;
 public class Test2 {
 
     public static void main(String[] args) throws InvalidProtocolBufferException, InterruptedException {
-        sleep(2000);
+        sleep(4000);
         var state = new TestState();
         DisturbedMonitor monitor = new DisturbedMonitor(2, state, 1);
         monitor.run();
