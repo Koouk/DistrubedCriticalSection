@@ -1,8 +1,8 @@
-package monitor.broker;
+package section.broker;
 
-import monitor.Config;
-import monitor.algorithm.Algorithm;
-import monitor.algorithm.Request;
+import section.Config;
+import section.algorithm.Algorithm;
+import section.algorithm.Request;
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
 

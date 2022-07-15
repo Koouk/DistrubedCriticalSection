@@ -1,6 +1,6 @@
-package monitor.algorithm;
+package section.algorithm;
 
-import monitor.Config;
+import section.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;

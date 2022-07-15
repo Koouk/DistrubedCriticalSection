@@ -1,10 +1,10 @@
-package monitor.broker;
+package section.broker;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import monitor.Config;
-import monitor.algorithm.Algorithm;
-import monitor.algorithm.Request;
-import monitor.algorithm.Token;
+import section.Config;
+import section.algorithm.Algorithm;
+import section.algorithm.Request;
+import section.algorithm.Token;
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
 

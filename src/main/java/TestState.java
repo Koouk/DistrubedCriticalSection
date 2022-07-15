@@ -1,5 +1,5 @@
 import com.google.gson.Gson;
-import monitor.StateInterface;
+import section.StateInterface;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -32,15 +32,12 @@ public class TestState implements StateInterface {
     public String serialize() {
 
         String json = gson.toJson(this);
-       // System.out.println(json);
         return json;
     }
 
     @Override
     public void deserialize(String body) {
         TestState state = gson.fromJson(body, TestState.class);
-       // System.out.println(state);
-
     }
 
     @Override

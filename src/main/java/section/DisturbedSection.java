@@ -1,11 +1,11 @@
-package monitor;
+package section;
 
-import monitor.algorithm.Algorithm;
+import section.algorithm.Algorithm;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-public class DisturbedMonitor {
+public class DisturbedSection {
 
     private final Algorithm algorithm;
 
@@ -13,7 +13,7 @@ public class DisturbedMonitor {
 
     private final int processIndex;
 
-    public DisturbedMonitor(int variables, StateInterface state, int index) {
+    public DisturbedSection(int variables, StateInterface state, int index) {
         this.state = state;
         processIndex = index;
         algorithm = new Algorithm(variables, index, state);

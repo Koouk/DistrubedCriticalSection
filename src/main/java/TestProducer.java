@@ -1,14 +1,14 @@
 import com.google.protobuf.InvalidProtocolBufferException;
-import monitor.DisturbedMonitor;
+import section.DisturbedSection;
 
 import static java.lang.Thread.sleep;
 
-public class Test {
+public class TestProducer {
 
-    public static void main(String[] args) throws InvalidProtocolBufferException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
 
         var state = new TestState();
-        DisturbedMonitor monitor = new DisturbedMonitor(2, state, 0);
+        DisturbedSection monitor = new DisturbedSection(2, state, 0);
         monitor.run();
         for (int i = 0; i < 20; i++) {
             int finalI = i;

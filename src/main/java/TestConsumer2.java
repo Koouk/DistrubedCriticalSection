@@ -1,19 +1,16 @@
 import com.google.protobuf.InvalidProtocolBufferException;
-import monitor.DisturbedMonitor;
+import section.DisturbedSection;
 
-import static java.lang.Thread.sleep;
+public class TestConsumer2 {
 
-public class Test2 {
+    public static void main(String[] args) throws InvalidProtocolBufferException {
 
-    public static void main(String[] args) throws InvalidProtocolBufferException, InterruptedException {
-        sleep(3000);
         var state = new TestState();
-        DisturbedMonitor monitor = new DisturbedMonitor(2, state, 1);
+        DisturbedSection monitor = new DisturbedSection(2, state, 2);
         monitor.run();
         for (int i = 0; i < 10; i++) {
-            int finalI = i;
             monitor.execute(1, 0,
-                    () -> state.checkIfEmpty(),
+                    state::checkIfEmpty,
                     () -> {
                         var x = state.getA();
                         System.out.println("\n Got" + x + "\n");
@@ -21,8 +18,6 @@ public class Test2 {
         }
         System.out.println("END");
     }
-
-
 }
 
 

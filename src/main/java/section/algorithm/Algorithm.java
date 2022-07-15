@@ -1,8 +1,8 @@
-package monitor.algorithm;
+package section.algorithm;
 
-import monitor.Config;
-import monitor.StateInterface;
-import monitor.broker.Broker;
+import section.Config;
+import section.StateInterface;
+import section.broker.Broker;
 
 import java.util.ArrayList;
 import java.util.Comparator;
